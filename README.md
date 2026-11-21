@@ -59,6 +59,8 @@ Untuk data operasional, pilih `DATA_DIR` yang berbeda dan jalankan `manage.py ad
 
 ## Fitur yang dapat dijalankan
 
+![Tampilan Website](menu-admin.png)
+
 - Pendaftaran online dengan tautan pemantauan, unggah ulang bukti, dan penerbitan nomor setelah pembayaran disahkan.
 - Pendaftaran langsung oleh Bendahara, konfirmasi tunai, dan kuitansi PDF.
 - Pembuatan akun dengan pencocokan data awal, aktivasi email, login nomor pendaftaran, reset password, serta pengaturan password.
