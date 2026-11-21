@@ -1,0 +1,14 @@
+﻿{% extends 'base.html' %}
+{% from 'macros.html' import csrf,key,field,initial,confirm %}
+{% block content %}
+<nav class="page-breadcrumb"><a href="/dashboard">Dashboard</a><span>›</span>{% if view %}<a href="/keuangan">Keuangan</a><span>›</span>{% endif %}<span>{{ {'pendaftaran':'Pendaftaran tunai','daftar-ulang':'Tunai daftar ulang','verifikasi':'Verifikasi transfer','riwayat':'Riwayat transaksi'}.get(view,'Keuangan') }}</span></nav>
+<div class="app-page-heading"><div><p>Bendahara & pemantauan keuangan</p><h1>{{ {'pendaftaran':'Pendaftaran tunai','daftar-ulang':'Tunai daftar ulang','verifikasi':'Verifikasi transfer','riwayat':'Riwayat transaksi'}.get(view,'Keuangan penerimaan') }}</h1></div><a href="/formulir-kosong" class="button secondary small">Formulir kosong</a></div>
+{% if not view %}
+<section class="staff-overview"><div><p>Total penerimaan yang disahkan</p><h2>{{ total|rupiah }}</h2><span>Pembayaran menunggu verifikasi ditinjau melalui menu terpisah.</span></div><span class="greeting-symbol" aria-hidden="true">💳</span></section>
+<section class="dashboard-section"><div class="section-heading"><h2>Menu keuangan</h2></div><div class="app-menu-grid">
+{% if has_role('bendahara') %}<a class="app-menu-tile" href="/keuangan/pendaftaran"><span class="menu-icon" aria-hidden="true">🧾</span><strong>Pendaftaran tunai</strong><small>Data awal dan Rp200.000</small></a><a class="app-menu-tile" href="/keuangan/daftar-ulang"><span class="menu-icon" aria-hidden="true">💵</span><strong>Tunai daftar ulang</strong><small>Pencatatan pembayaran</small></a>{% endif %}
+<a class="app-menu-tile" href="/keuangan/verifikasi"><span class="menu-icon" aria-hidden="true">✅</span><strong>Verifikasi transfer</strong><small>Antrean pemeriksaan</small></a><a class="app-menu-tile" href="/keuangan/riwayat"><span class="menu-icon" aria-hidden="true">🕘</span><strong>Riwayat transaksi</strong><small>Kuitansi dan koreksi</small></a><a class="app-menu-tile" href="/laporan"><span class="menu-icon" aria-hidden="true">📊</span><strong>Laporan pembayaran</strong><small>Unduh Excel</small></a>
+</div></section>
+{% elif view in ['pendaftaran','daftar-ulang'] %}{% include 'staff_sections/' ~ view ~ '.html' %}
+{% else %}{% include 'staff_sections/transaksi.html' %}{% endif %}
+{% endblock %}

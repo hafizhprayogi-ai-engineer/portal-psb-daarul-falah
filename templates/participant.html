@@ -1,0 +1,11 @@
+﻿{% extends 'base.html' %}
+{% from 'macros.html' import csrf,key,field,confirm %}
+{% set owner=current_user.participant_id==p.id %}
+{% block content %}
+<nav class="page-breadcrumb" aria-label="Jejak halaman"><a href="/peserta/{{ p.id }}">Ringkasan peserta</a><span aria-hidden="true">›</span><span>{{ section_title }}</span></nav>
+<div class="app-page-heading"><div><p>{{ p.name }} · {{ p.number }}</p><h1>{{ section_title }}</h1></div><a class="button secondary small" href="/peserta/{{ p.id }}">Semua menu</a></div>
+<div class="mini-progress"><span>Progres penerimaan <strong>{{ flow.count }}/6</strong></span><progress value="{{ flow.count }}" max="6">{{ flow.count }} dari 6 tahap selesai</progress></div>
+<div class="participant-menu-content">
+{% include 'participant_sections/' ~ section ~ '.html' %}
+</div>
+{% endblock %}

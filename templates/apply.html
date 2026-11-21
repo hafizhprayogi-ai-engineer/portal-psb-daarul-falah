@@ -1,0 +1,26 @@
+{% extends 'base.html' %}{% from 'macros.html' import csrf,initial %}{% block content %}<div class="page-head">
+<div>
+<div class="eyebrow">LANGKAH PERTAMA</div>
+<h1>Pendaftaran online</h1>
+<p>Isi data anak yang akan didaftarkan. Satu pengajuan untuk satu anak.</p>
+</div>
+<span class="badge">2027/2028</span>
+</div>
+<div class="two-col">
+<section class="card">
+<h2>Data awal peserta</h2>
+<form method="post" class="stack">{{ csrf() }}{{ initial() }}<p class="muted">Simpan data ini. Data yang sama akan diminta saat membuat akun setelah pembayaran disetujui.</p>
+<button>Simpan & lanjut pembayaran →</button>
+</form>
+</section>
+<aside class="card tinted">
+<h2>Biaya pendaftaran</h2>
+<div class="amount">Rp200.000</div>
+<p>Berlaku untuk MI, MTs, dan MA.</p>{% if cfg.get('bank') and cfg.get('bank_number') and cfg.get('bank_owner') %}<h3>Rekening tujuan</h3>
+<p>{{ cfg.bank }}<br>
+<strong>{{ cfg.bank_number }}</strong>
+<br>a.n. {{ cfg.bank_owner }}</p>{% else %}<div class="notice">Rekening tujuan belum tersedia. Unggah pembayaran dibuka setelah panitia menetapkan rekening.</div>{% endif %}<h3>Periode pendaftaran</h3>
+<p>{{ cfg.get('open_date')|tanggal }} — {{ cfg.get('close_date')|tanggal }}</p>
+<p>Setelah menyimpan pengajuan, Anda mendapatkan tautan pemantauan khusus. Jangan membagikan tautan tersebut kepada orang lain.</p>
+</aside>
+</div>{% endblock %}

@@ -1,0 +1,84 @@
+{
+  "name": "PSB Daarul Falah 2 - Notifikasi per kanal",
+  "active": false,
+  "settings": {"executionOrder": "v1", "timezone": "Asia/Jakarta"},
+  "nodes": [
+    {
+      "id": "psb-webhook", "name": "Kejadian PSB", "type": "n8n-nodes-base.webhook", "typeVersion": 2,
+      "position": [0, 0], "webhookId": "psb-notifikasi",
+      "parameters": {"httpMethod": "POST", "path": "psb-notifikasi", "authentication": "headerAuth", "responseMode": "onReceived", "options": {}}
+    },
+    {
+      "id": "psb-preflight", "name": "Periksa status terbaru", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.PSB_BASE_URL + '/integrasi/event/' + encodeURIComponent($json.body.event_id) }}",
+        "authentication": "genericCredentialType", "genericAuthType": "httpHeaderAuth",
+        "options": {"timeout": 20000}
+      }
+    },
+    {
+      "id": "psb-eligible", "name": "Masih boleh dikirim", "type": "n8n-nodes-base.if", "typeVersion": 2.2,
+      "position": [480, 0],
+      "parameters": {"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2}, "conditions": [{"id": "eligible", "leftValue": "={{ $json.send }}", "rightValue": true, "operator": {"type": "boolean", "operation": "true", "singleValue": true}}], "combinator": "and"}, "options": {}}
+    },
+    {
+      "id": "psb-channel", "name": "Kanal email", "type": "n8n-nodes-base.if", "typeVersion": 2.2,
+      "position": [720, -100],
+      "parameters": {"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2}, "conditions": [{"id": "email", "leftValue": "={{ $json.channel }}", "rightValue": "email", "operator": {"type": "string", "operation": "equals"}}], "combinator": "and"}, "options": {}}
+    },
+    {
+      "id": "psb-email", "name": "Kirim email SMTP", "type": "n8n-nodes-base.emailSend", "typeVersion": 2.1,
+      "position": [960, -240], "onError": "continueRegularOutput", "retryOnFail": false,
+      "parameters": {"fromEmail": "={{ $vars.PSB_EMAIL_FROM }}", "toEmail": "={{ $json.destination }}", "subject": "Pemberitahuan penerimaan santri baru Daarul Falah 2 Maliku", "emailFormat": "text", "text": "={{ $json.message }}", "options": {"appendAttribution": false}}
+    },
+    {
+      "id": "psb-whatsapp", "name": "Kirim WhatsApp Business", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2,
+      "position": [960, 40], "onError": "continueRegularOutput", "retryOnFail": false,
+      "parameters": {
+        "method": "POST", "url": "={{ $vars.PSB_WHATSAPP_MESSAGES_URL }}",
+        "authentication": "genericCredentialType", "genericAuthType": "httpHeaderAuth",
+        "sendBody": true, "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: 'whatsapp', to: $json.destination, type: 'template', template: { name: $vars.PSB_WHATSAPP_TEMPLATE, language: { code: $vars.PSB_WHATSAPP_LANGUAGE || 'id' }, components: [{ type: 'body', parameters: [{ type: 'text', text: $json.message }] }] } }) }}",
+        "options": {"timeout": 20000}
+      }
+    },
+    {
+      "id": "psb-email-callback", "name": "Catat hasil email", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2,
+      "position": [1220, -240], "retryOnFail": true, "maxTries": 3, "waitBetweenTries": 1000,
+      "parameters": {
+        "method": "POST", "url": "={{ $vars.PSB_BASE_URL + '/integrasi/callback' }}",
+        "authentication": "genericCredentialType", "genericAuthType": "httpHeaderAuth",
+        "sendBody": true, "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ event_id: $('Periksa status terbaru').item.json.event_id, attempt: $('Periksa status terbaru').item.json.attempt, status: $json.error ? 'gagal' : 'berhasil', delivery_id: $json.error ? '' : ($json.messageId || 'smtp-accepted-' + $execution.id), error: $json.error ? JSON.stringify($json.error) : '', safe_to_retry: false }) }}",
+        "options": {"timeout": 20000}
+      }
+    },
+    {
+      "id": "psb-wa-callback", "name": "Catat hasil WhatsApp", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2,
+      "position": [1220, 40], "retryOnFail": true, "maxTries": 3, "waitBetweenTries": 1000,
+      "parameters": {
+        "method": "POST", "url": "={{ $vars.PSB_BASE_URL + '/integrasi/callback' }}",
+        "authentication": "genericCredentialType", "genericAuthType": "httpHeaderAuth",
+        "sendBody": true, "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ event_id: $('Periksa status terbaru').item.json.event_id, attempt: $('Periksa status terbaru').item.json.attempt, status: $json.messages && $json.messages[0] && $json.messages[0].id ? 'berhasil' : 'gagal', delivery_id: $json.messages && $json.messages[0] ? $json.messages[0].id : '', error: $json.error ? JSON.stringify($json.error) : '', safe_to_retry: false }) }}",
+        "options": {"timeout": 20000}
+      }
+    },
+    {
+      "id": "psb-note", "name": "Konfigurasi sebelum aktif", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1,
+      "position": [0, 280],
+      "parameters": {"width": 760, "height": 260, "content": "## Konfigurasi diperlukan\nIsi variabel PSB_BASE_URL, PSB_EMAIL_FROM, PSB_WHATSAPP_MESSAGES_URL, PSB_WHATSAPP_TEMPLATE, dan PSB_WHATSAPP_LANGUAGE.\nPilih Header Auth yang berbeda untuk webhook masuk, endpoint aplikasi, dan WhatsApp. Pilih kredensial SMTP pada node email.\nTemplate WhatsApp harus disetujui penyedia dengan satu parameter body berisi pesan. Sesuaikan mapping jika format template resmi berbeda.\nPengiriman nyata belum diuji. Lihat docs/integrasi-n8n.md. Webhook ulang hanya boleh memperoleh satu klaim pengiriman."}
+    }
+  ],
+  "connections": {
+    "Kejadian PSB": {"main": [[{"node": "Periksa status terbaru", "type": "main", "index": 0}]]},
+    "Periksa status terbaru": {"main": [[{"node": "Masih boleh dikirim", "type": "main", "index": 0}]]},
+    "Masih boleh dikirim": {"main": [[{"node": "Kanal email", "type": "main", "index": 0}], []]},
+    "Kanal email": {"main": [[{"node": "Kirim email SMTP", "type": "main", "index": 0}], [{"node": "Kirim WhatsApp Business", "type": "main", "index": 0}]]},
+    "Kirim email SMTP": {"main": [[{"node": "Catat hasil email", "type": "main", "index": 0}]]},
+    "Kirim WhatsApp Business": {"main": [[{"node": "Catat hasil WhatsApp", "type": "main", "index": 0}]]}
+  },
+  "pinData": {}, "tags": []
+}

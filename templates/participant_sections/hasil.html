@@ -1,0 +1,22 @@
+<section id="hasil" class="card">
+{% if p.published_result=='Lulus' %}<div class="actions"><a class="button" href="/peserta/{{ p.id }}/menu/berkas">Lanjut pemberkasan →</a><a class="button secondary" href="/peserta/{{ p.id }}/menu/dokumen">Lihat surat kelulusan</a></div>{% endif %}
+<div class="eyebrow">SELEKSI PESERTA</div>
+<h2>Hasil seleksi</h2>
+<div class="result">{{ p.published_result or 'Menunggu hasil' }}</div>{% if p.published_result=='Lulus' %}<p>Silakan unduh surat kelulusan, lengkapi berkas, dan lanjutkan daftar ulang.</p>{% elif p.published_result=='Tidak lulus' %}<p>Terima kasih telah mengikuti proses seleksi. Hubungi panitia jika memerlukan informasi.</p>{% else %}<p>Hasil akan tampil setelah diumumkan oleh bagian Pemberkasan.</p>{% endif %}{% if p.financial_review %}<div class="notice warning">Terdapat pembayaran sebelum koreksi hasil. Perlu penanganan petugas; kebijakan pengembalian dana belum ditetapkan.</div>{% endif %}{% if has_role('pemberkasan') %}{% if not p.published_result %}<p>
+<strong>Draf petugas:</strong> {{ p.draft_result or 'Belum ditetapkan' }}</p>
+<form method="post" action="/peserta/{{ p.id }}/draft" class="stack">{{ csrf() }}<label>Hasil draf<select name="result">
+<option>Lulus</option>
+<option>Tidak lulus</option>
+</select>
+</label>
+<button class="secondary">Simpan draf</button>
+</form>{% if p.draft_result %}<form method="post" action="/peserta/{{ p.id }}/publish" class="stack separated" data-confirm="Hasil akan terlihat oleh wali dan pemberitahuan akan dibuat. Lanjutkan?">{{ csrf() }}{{ key() }}{{ confirm('Saya mengonfirmasi hasil draf di atas untuk diumumkan.') }}<button>Umumkan hasil</button>
+</form>{% endif %}{% else %}<details>
+<summary>Koreksi hasil yang diumumkan</summary>
+<form method="post" action="/peserta/{{ p.id }}/correct-result" class="stack" data-confirm="Koreksi dapat membatalkan surat dan proses daftar ulang. Lanjutkan?">{{ csrf() }}{{ key() }}<label>Hasil terbaru<select name="result">
+<option>Lulus</option>
+<option>Tidak lulus</option>
+</select>
+</label>{{ field('reason','Alasan koreksi') }}{{ confirm() }}<button class="danger">Simpan koreksi & beri tahu wali</button>
+</form>
+</details>{% endif %}{% endif %}</section>

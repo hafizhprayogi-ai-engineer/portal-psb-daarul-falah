@@ -1,0 +1,23 @@
+{% extends 'base.html' %}{% from 'macros.html' import csrf,field,initial %}{% block content %}<div class="auth-layout">
+<div class="auth-intro">
+<div class="eyebrow">PORTAL SANTRI & WALI</div>
+<h1>{{ title }}</h1>
+<p>{% if mode=='register' %}Nomor pendaftaran diterbitkan setelah pembayaran disahkan. Cocokkan seluruh data dengan pendaftaran awal.{% else %}Satu tempat untuk memantau setiap langkah penerimaan santri baru.{% endif %}</p>
+<a href="/">← Kembali ke informasi PSB</a>
+</div>
+<section class="card">
+{% if mode=='password' and current_user.participant_id %}<h2>Foto profil</h2>{% if profile_photo %}<img class="profile-avatar" src="/foto/{{ profile_photo.id }}" alt="Foto profil">{% endif %}<p><a class="button secondary" href="/peserta/{{ current_user.participant_id }}/menu/berkas">Unggah / ganti foto profil</a></p><hr>{% endif %}
+<form method="post" class="stack">{{ csrf() }}{% if mode=='login' %}{{ field('username','Nomor pendaftaran / username petugas') }}<label>Kata sandi<input type="password" name="password" autocomplete="current-password" required>
+</label>
+<button>Masuk ke portal →</button>
+<div class="split">
+<a href="/lupa-password">Lupa kata sandi?</a>
+<a href="/kirim-aktivasi">Kirim ulang aktivasi</a>
+</div>
+<hr>
+<p>Sudah mendapat nomor pendaftaran? <a href="/daftar-akun">Buat akun</a>
+</p>{% elif mode=='register' %}{{ field('number','Nomor pendaftaran') }}{{ initial() }}{{ field('password','Kata sandi — minimal 8 karakter','password') }}{{ field('confirm','Konfirmasi kata sandi','password') }}<button>Buat akun & kirim aktivasi</button>{% elif mode=='recovery' %}{{ field('number','Nomor pendaftaran') }}{{ field('email','Email terdaftar','email') }}<button>Kirim tautan ke email</button>{% elif mode=='aktivasi' %}<p>Tekan tombol di bawah untuk mengaktifkan akun. Membuka tautan saja tidak akan mengaktifkannya.</p>
+<button>Aktifkan akun saya</button>{% else %}{% if mode=='password' %}<label>Kata sandi lama<input type="password" name="old_password" required autocomplete="current-password">
+</label>{% endif %}{{ field('password','Kata sandi baru — minimal 8 karakter','password') }}{{ field('confirm','Konfirmasi kata sandi baru','password') }}<button>Simpan kata sandi</button>{% endif %}</form>
+</section>
+</div>{% endblock %}

@@ -1,0 +1,50 @@
+<form class="filters section" method="get">
+<label>Cari transaksi<input name="q" value="{{ q }}" placeholder="Nama atau nomor peserta">
+</label>
+<button>Cari transaksi</button>
+<a href="/laporan">Ekspor laporan →</a>
+</form>
+<section class="card table-wrap">
+<table>
+<thead>
+<tr>
+<th>Peserta</th>
+<th>Pembayaran</th>
+<th>Nominal</th>
+<th>Status</th>
+<th>Tindak lanjut</th>
+</tr>
+</thead>
+<tbody>{% for pay in rows %}<tr>
+<td>
+<strong>{{ pay.name }}</strong>
+<small>{{ pay.number or pay.reference }} · {{ pay.level }}</small>{% if pay.financial_review %}<span class="badge warning">Perlu penanganan koreksi hasil</span>{% endif %}</td>
+<td>{{ pay.kind|replace('_',' ')|title }}<small>{{ pay.method|title }} · {{ pay.created_at|tanggal }}</small>{% if pay.upload_id %}<a href="/berkas/{{ pay.upload_id }}/lihat" target="_blank" rel="noopener noreferrer">Lihat bukti transfer</a> ? <a href="/berkas/{{ pay.upload_id }}">Unduh</a>{% endif %}</td>
+<td>{{ pay.amount|rupiah }}{% if pay.receiver_name %}<small>Diterima oleh: {{ pay.receiver_name }}</small>{% endif %}</td>
+<td>
+<span class="badge">{{ pay.status }}</span>{% if pay.reason %}<p>{{ pay.reason }}</p>{% endif %}</td>
+<td>{% if pay.receipt_id %}<a href="/dokumen/{{ pay.receipt_id }}">Unduh kuitansi</a>{% endif %}{% if has_role('bendahara') %}{% if pay.status=='Menunggu verifikasi' %}<form method="post" data-confirm="Sahkan transfer ini setelah mencocokkannya dengan mutasi rekening?">{{ csrf() }}<input type="hidden" name="action" value="approve">
+<input type="hidden" name="payment_id" value="{{ pay.id }}">
+<button class="small">Setujui pembayaran</button>
+</form>
+<details>
+<summary>Tolak / minta perbaikan</summary>
+<form method="post" class="stack">{{ csrf() }}<input type="hidden" name="action" value="reject">
+<input type="hidden" name="payment_id" value="{{ pay.id }}">{{ field('reason','Alasan penolakan') }}<button class="danger small">Kirim penolakan</button>
+</form>
+</details>{% elif pay.status=='Disahkan' %}<details>
+<summary>Koreksi pencatatan</summary>
+<form method="post" class="stack" data-confirm="Koreksi akan menerbitkan bukti versi baru. Lanjutkan?">{{ csrf() }}{{ key() }}<input type="hidden" name="payment_id" value="{{ pay.id }}">{% if pay.kind=='daftar_ulang' %}<input type="hidden" name="action" value="correct">{{ field('amount','Nominal transaksi yang benar','number',pay.amount) }}{% else %}<input type="hidden" name="action" value="registration-note">
+<label>Metode yang benar<select name="method">
+<option value="tunai">Tunai</option>
+<option value="transfer">Transfer</option>
+</select>
+</label>
+<p class="muted">Nominal pendaftaran tetap Rp200.000.</p>{% endif %}{{ field('reason','Alasan koreksi / penanganan selisih') }}{{ confirm() }}<button class="danger small">Simpan koreksi</button>
+</form>
+</details>{% endif %}{% endif %}</td>
+</tr>{% else %}<tr>
+<td colspan="5" class="empty">Belum ada transaksi yang sesuai pencarian.</td>
+</tr>{% endfor %}</tbody>
+</table>
+</section>

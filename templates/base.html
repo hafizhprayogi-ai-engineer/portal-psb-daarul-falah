@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#124d3d">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo-daarul-falah.png') }}">
+<title>{{ title or 'Portal Penerimaan Santri Baru' }} · Daarul Falah 2</title>
+<link rel="stylesheet" href="{{ url_for('static',filename='style.css', v='20261120-file-review') }}">
+{% block extra_head %}{% endblock %}
+{% if app_shell %}<link rel="stylesheet" href="{{ url_for('static', filename='app-shell.css', v='20261119-dashboard-fit') }}"><script src="{{ url_for('static', filename='app-shell.js', v='20261116-biodata') }}" defer></script>{% endif %}
+<link rel="stylesheet" href="{{ url_for('static', filename='motion.css', v='20261112-motion') }}">
+<script src="{{ url_for('static',filename='app.js', v='20261119-photo') }}" defer>
+</script>
+<script src="{{ url_for('static', filename='motion.js', v='20261112-motion') }}" defer></script>
+</head>
+<body class="{% if app_shell %}app-shell {% endif %}{% block body_class %}{% endblock %}">
+<a class="skip" href="#utama">Lewati ke isi</a>
+{% if app_shell %}
+{% include 'app_navigation.html' %}
+{% else %}
+<header class="header">
+<a class="brand" href="/">
+<img class="brand-logo" src="{{ url_for('static', filename='images/logo-daarul-falah.png') }}" alt="Logo Pondok Pesantren Daarul Falah 2" width="54" height="54">
+<span>Daarul Falah 2<small>Maliku · Portal PSB</small>
+</span>
+</a>
+<nav aria-label="Navigasi utama">
+<a href="/">Informasi PSB</a>{% if current_user %}<a href="/dashboard">Dashboard</a>{% if has_role('pemberkasan','admin') %}<a href="/peserta">Data santri</a>
+<a href="/jadwal">Jadwal</a>{% if has_role('pemberkasan') %}<a href="/pemindai">Absensi QR</a>{% endif %}{% endif %}{% if has_role('bendahara','admin') %}<a href="/keuangan">Keuangan</a>{% endif %}{% if has_role('admin','bendahara','pemberkasan') %}<a href="/laporan">Laporan</a>{% endif %}{% if has_role('admin') %}<a href="/pengaturan">Pengaturan</a>
+<a href="/aktivitas">Aktivitas</a>{% endif %}<a href="/akun">Akun</a>
+<form method="post" action="/logout" class="inline">
+<input type="hidden" name="csrf" value="{{ csrf_token() }}">
+<button class="link" type="submit">Keluar</button>
+</form>{% else %}<a href="/daftar-akun">Daftar akun</a>
+<a class="button small" href="/login">Masuk portal <span>↗</span>
+</a>{% endif %}</nav>
+</header>
+{% endif %}
+<main id="utama" class="{% block main_class %}container{% endblock %}">{% for category,message in get_flashed_messages(with_categories=true) %}<div class="notice {{ category }}" role="status">{{ message }}</div>{% endfor %}{% block content %}{% endblock %}</main>
+<footer>
+<div>
+<strong>Pondok Pesantren Daarul Falah 2 Maliku</strong>
+<p>Penerimaan Santri Baru · Tahun Ajaran 2027/2028</p>
+</div>
+<div>Seluruh jadwal menggunakan WIB.{% if cfg.get('contact') %}<br>Bantuan panitia: {{ cfg.contact }}{% else %}<br>Kontak panitia belum tersedia.{% endif %}</div>
+</footer>
+</body>
+</html>

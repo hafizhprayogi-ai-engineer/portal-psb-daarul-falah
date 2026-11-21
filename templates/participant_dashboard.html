@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard-hero">
+<section class="dashboard-greeting"><div><p>{{ 'Assalamualaikum, wali dari' if current_user.participant_id==p.id else 'Ringkasan peserta' }}</p><h1>{{ p.name }}</h1><span>{{ p.number }} · {{ p.level }} · Tahun ajaran 2027/2028</span></div><span class="greeting-symbol" aria-hidden="true">✦</span></section>
+<section class="flow-card step-{{ flow.count }}" aria-labelledby="flow-heading">
+  <div class="flow-ring" role="progressbar" aria-label="Progres pendaftaran" aria-valuenow="{{ flow.count }}" aria-valuemin="0" aria-valuemax="6" aria-valuetext="{{ flow.count }} dari 6 tahap selesai"><span>{{ flow.percent }}<small>%</small></span></div>
+  <div class="flow-copy"><p id="flow-heading">Progres pendaftaran Anda</p><h2><em>{{ flow.count }}/6</em> tahap selesai</h2><span>Menuju daftar ulang selesai</span><progress value="{{ flow.count }}" max="6">{{ flow.count }} dari 6</progress></div>
+  <a class="flow-continue" href="{{ flow.next_url }}">{{ 'Lihat bukti' if p.completed else 'Lanjutkan' }} <span aria-hidden="true">➜</span></a>
+</section>
+</div>
+{% if p.published_result=='Tidak lulus' %}<div class="notice warning">Hasil seleksi terbaru adalah Tidak lulus. Buka menu Hasil seleksi untuk informasi selengkapnya.</div>{% elif p.completed %}<div class="notice success">Daftar ulang selesai. Bukti dapat diunduh melalui menu Dokumen.</div>{% endif %}
+<section class="dashboard-section" id="menu"><div class="section-heading"><h2>Menu utama</h2><a href="/peserta/{{ p.id }}/menu/progres">Lihat progres →</a></div>
+  <div class="app-menu-grid">{% for item in participant_menu_items %}<a class="app-menu-tile {{ 'featured' if item.key==flow.next_section else '' }}" href="{{ item.url }}"><span class="menu-icon" aria-hidden="true">{{ item.icon }}</span><strong>{{ item.label }}</strong><small>{% if item.key=='biodata' %}{{ 'Lengkap' if p.bio_complete else 'Lengkapi data' }}{% elif item.key=='jadwal' %}{{ schedule.date|tanggal if schedule else 'Pilih tanggal' }}{% elif item.key=='hasil' %}{{ p.published_result or 'Menunggu hasil' }}{% elif item.key=='berkas' %}{{ 'Berkas diterima' if docs_complete else 'Lengkapi berkas' }}{% elif item.key=='pembayaran' %}{{ 'Menunggu tagihan' if not bal.invoice else ('Lunas' if bal.remaining==0 else 'Belum lunas') }}{% elif item.key=='dokumen' %}Surat & bukti{% elif item.key=='notifikasi' %}Info terbaru{% else %}Hubungi panitia{% endif %}</small></a>{% endfor %}
+  {% if has_role('pemberkasan') %}<a class="app-menu-tile" href="/peserta/{{ p.id }}/menu/absensi"><span class="menu-icon" aria-hidden="true">✅</span><strong>Absensi tes</strong><small>{{ p.attendance }}</small></a>{% endif %}
+  {% if has_role('pemberkasan','admin') %}<a class="app-menu-tile" href="/peserta/{{ p.id }}/riwayat"><span class="menu-icon" aria-hidden="true">🕘</span><strong>Riwayat perubahan</strong><small>Audit peserta</small></a>{% endif %}</div>
+</section>
+{% endblock %}

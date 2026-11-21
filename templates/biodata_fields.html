@@ -1,0 +1,10 @@
+{% macro input_field(key, spec, value, required=false) %}
+<label class="{{ 'full' if spec[1]=='textarea' else '' }}" for="bio-{{ key }}">{{ spec[0] }}{{ ' *' if required else '' }}
+{% if spec[1] in ['gender','education'] %}
+<select id="bio-{{ key }}" name="{{ key }}" {% if required %}required{% endif %}><option value="">Pilih {{ 'jenis kelamin' if spec[1]=='gender' else 'pendidikan terakhir' }}</option>{% for option in (['Putra','Putri'] if spec[1]=='gender' else education_options) %}<option value="{{ option }}" {% if value==option %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
+{% elif spec[1]=='textarea' %}<textarea id="bio-{{ key }}" name="{{ key }}" rows="3" maxlength="2000" {% if required %}required{% endif %} {% if key=='illness_history' %}placeholder="Tulis Tidak ada jika tidak memiliki riwayat penyakit."{% endif %}>{{ value or '' }}</textarea>
+{% else %}<input id="bio-{{ key }}" name="{{ key }}" type="{{ spec[1] if spec[1] in ['date','email','tel'] else 'text' }}" value="{{ value or '' }}" {% if required %}required{% endif %} {% if spec[1]=='readonly' %}readonly aria-readonly="true"{% elif spec[1]=='digits' %}inputmode="numeric" minlength="{{ spec[2] }}" maxlength="{{ spec[2] }}" pattern="[0-9]{{ '{' ~ spec[2] ~ '}' }}" title="Isi {{ spec[2] }} digit angka"{% elif spec[1] in ['text','email','tel'] %}maxlength="{{ 254 if spec[1]=='email' else 160 }}"{% endif %}>
+{% endif %}
+{% if key=='nisn' %}<small>10 digit. MI yang belum memiliki NISN dapat mengosongkannya.</small>{% elif key in ['nik','kk_number','father_nik','mother_nik'] %}<small>16 digit sesuai dokumen kependudukan.</small>{% elif key=='school_npsn' %}<small>8 digit NPSN sekolah asal.</small>{% elif key=='number' %}<small>Diterbitkan sistem setelah pembayaran pendaftaran disahkan.</small>{% elif key=='guardian' %}<small>Dapat dikosongkan bila wali adalah ayah atau ibu.</small>{% endif %}
+</label>
+{% endmacro %}

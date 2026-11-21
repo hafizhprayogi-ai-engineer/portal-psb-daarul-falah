@@ -1,0 +1,63 @@
+<section class="card">
+<h2>Pasfoto & foto profil</h2>
+<p>Unggah foto santri dalam JPG atau PNG, maksimal 5 MB. Foto terbaru menjadi foto profil akun wali dan disalin ke folder Drive privat santri yang sama. Pasfoto wajib diunggah dan diterima petugas agar berkas dinyatakan lengkap.</p>
+{% set photo = uploads.get('foto') %}
+<span class="badge">{{ photo.status if photo else 'Belum diunggah (wajib)' }}</span>
+{% if photo and photo.review_note %}<p>{{ photo.review_note }}</p>{% endif %}
+{% if photo %}<img class="participant-photo" src="/foto/{{ photo.id }}" alt="Foto profil santri">
+<p><a href="/berkas/{{ photo.id }}">Unduh foto</a><br><small>Salinan Drive privat: {{ 'Tersalin & terverifikasi' if drive_status.get(photo.id)=='ready' else ('Ada di Sampah Drive; pulihkan salinan ini bila diperlukan' if drive_status.get(photo.id)=='trashed' else 'Menunggu sinkronisasi / aktivasi Drive') }}. Versi sebelumnya tetap disimpan.</small></p>{% endif %}
+{% if owner or has_role('pemberkasan') %}<form method="post" enctype="multipart/form-data" action="/peserta/{{ p.id }}/photo" class="stack">{{ csrf() }}
+<label>{{ 'Ganti foto profil' if photo else 'Pilih pasfoto' }}<input type="file" name="file" accept="image/jpeg,image/png" required></label>
+<button>{{ 'Simpan foto baru' if photo else 'Unggah foto' }}</button>
+</form>{% endif %}
+{% if has_role('pemberkasan') and photo %}<details><summary>Periksa pasfoto</summary>
+<form method="post" action="/peserta/{{ p.id }}/review" class="stack">{{ csrf() }}<input type="hidden" name="upload_id" value="{{ photo.id }}">
+<label>Keputusan<select name="status"><option>Diterima</option><option>Perlu diperbaiki</option></select></label>
+<label>Catatan pemeriksaan<textarea name="reason"></textarea></label><button>Simpan pemeriksaan</button></form></details>{% endif %}
+</section>
+<section id="berkas" class="card section">
+{% if has_role('pemberkasan') and p.published_result=='Lulus' and not docs_complete %}
+<details><summary>Kirim pengingat kekurangan berkas</summary>
+<form method="post" action="/peserta/{{ p.id }}/remind-files" class="stack">{{ csrf() }}{{ key() }}
+<label>Catatan untuk wali<textarea name="reason"></textarea></label>
+<button>Kirim daftar kekurangan melalui WhatsApp</button>
+</form></details>
+{% endif %}
+<div class="section-head">
+<div>
+<div class="eyebrow">DAFTAR ULANG</div>
+<h2>Berkas peserta</h2>
+{% if drive_folder and drive_folder.web_url %}<p><a href="{{ drive_folder.web_url }}" target="_blank" rel="noopener noreferrer">Buka folder Drive privat santri</a></p>{% endif %}
+</div>
+<span class="badge">{{ 'Lengkap & diterima' if docs_complete else 'Belum lengkap' }}</span>
+</div>{% if p.published_result!='Lulus' %}<div class="empty">Unggah berkas dibuka setelah hasil Lulus dipublikasikan.</div>{% else %}<p class="muted">Unggah bertahap: PDF, JPG, atau PNG, maksimal 5 MB per berkas. Berkas diterima akan dikunci.</p>
+<div class="doc-grid">{% for cat in required if cat != 'foto' %}{% set u=uploads.get(cat) %}<article class="document-card">
+<h3>{{ DOC_LABELS[cat] }}</h3>
+<span class="badge">{{ u.status if u else ('Menyusul' if cat=='ijazah' else 'Belum diunggah') }}</span>{% if u %}<p>
+<a href="/berkas/{{ u.id }}/lihat" target="_blank" rel="noopener noreferrer">Lihat berkas ↗</a> ? <a href="/berkas/{{ u.id }}">Unduh</a>
+<small>Salinan Drive privat: {{ 'Tersalin & terverifikasi' if drive_status.get(u.id)=='ready' else ('Ada di Sampah Drive; pulihkan salinan ini bila diperlukan' if drive_status.get(u.id)=='trashed' else 'Menunggu sinkronisasi / aktivasi Drive') }}. Versi sebelumnya tetap disimpan.</small>
+</p>{% if u.replaces %}<p>Pengganti: {{ u.replaces }} untuk {{ DOC_LABELS[cat] }}<br>{{ u.reason }}</p>{% endif %}{% if u.review_note %}<p class="notice warning">{{ u.review_note }}</p>{% endif %}{% endif %}{% if (owner and (not u or u.status!='Diterima')) or has_role('pemberkasan') %}<details>
+<summary>{{ 'Ganti berkas' if u else 'Unggah berkas' }}</summary>
+<form method="post" enctype="multipart/form-data" action="/peserta/{{ p.id }}/{{ 'upload' if owner else 'replace' }}" class="stack">{{ csrf() }}<input type="hidden" name="category" value="{{ cat }}">
+<label>Berkas<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg" required>
+</label>{% if cat in ['ktp_ayah','ktp_ibu'] %}<label>Jenis identitas<select name="replacement">
+<option value="">{{ DOC_LABELS[cat] }}</option>
+<option value="wali">KTP wali sebagai pengganti</option>
+</select>
+</label>{% endif %}{% if not owner %}<label>Alasan penggantian oleh petugas<textarea name="reason" required></textarea></label>{% endif %}
+<button>Kirim berkas</button>
+</form>
+</details>{% endif %}{% if has_role('pemberkasan') and u %}<details>
+<summary>Periksa berkas</summary>
+<form method="post" action="/peserta/{{ p.id }}/review" class="stack">{{ csrf() }}<input type="hidden" name="upload_id" value="{{ u.id }}">
+<label>Keputusan<select name="status">
+<option>Diterima</option>
+<option>Perlu diperbaiki</option>
+</select>
+</label>
+<label>Catatan pemeriksaan<textarea name="reason">
+</textarea>
+</label>
+<button>Simpan pemeriksaan</button>
+</form>
+</details>{% endif %}</article>{% endfor %}</div>{% if p.level!='MI' %}<p class="muted">Ijazah boleh menyusul dan pembayaran tetap dapat dilakukan. Status berkas tetap Belum lengkap sampai ijazah dan seluruh berkas wajib diterima petugas. SKL tidak menggantikan kewajiban ijazah.</p>{% endif %}{% endif %}</section>

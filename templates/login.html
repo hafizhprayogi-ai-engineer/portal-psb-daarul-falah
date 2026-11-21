@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import csrf %}
+
+{% block body_class %}login-page{% endblock %}
+{% block main_class %}portal-main{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='portal.css', v='20261112-portal') }}">
+<link rel="preload" as="image" href="{{ url_for('static', filename='images/pondok-original.jpeg') }}">
+{% endblock %}
+
+{% block content %}
+<section class="portal-stage" aria-labelledby="portal-welcome">
+    <div class="portal-scene" aria-hidden="true">
+        <img class="portal-background" src="{{ url_for('static', filename='images/pondok-original.jpeg') }}" alt="" fetchpriority="high" width="719" height="1280">
+    </div>
+
+    <div class="portal-intro">
+        <p class="portal-eyebrow">Portal santri &amp; wali</p>
+        <h1 id="portal-welcome"><span>Selamat datang</span><span>kembali</span></h1>
+        <p class="portal-description">Satu tempat untuk memantau setiap langkah penerimaan santri baru.</p>
+        <a class="portal-back" href="/"><span aria-hidden="true">←</span> Kembali ke informasi PSB</a>
+    </div>
+
+    <img class="portal-people" src="{{ url_for('static', filename='images/santri-cutout.png') }}" alt="Enam santri Daarul Falah 2 membawa brosur penerimaan santri baru." width="1736" height="906" fetchpriority="high">
+
+    <section class="portal-card" aria-labelledby="portal-login-heading">
+        <h2 id="portal-login-heading">Masuk ke portal</h2>
+        <form method="post" action="{{ url_for('login') }}" class="portal-form">
+            {{ csrf() }}
+            <div class="portal-field">
+                <label for="portal-username">Nomor pendaftaran / username petugas</label>
+                <div class="portal-input-wrap">
+                    <span class="input-symbol user-symbol" aria-hidden="true"></span>
+                    <input id="portal-username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+                </div>
+            </div>
+            <div class="portal-field">
+                <label for="portal-password">Kata sandi</label>
+                <div class="portal-input-wrap">
+                    <span class="input-symbol lock-symbol" aria-hidden="true"></span>
+                    <input id="portal-password" name="password" type="password" autocomplete="current-password" required>
+                    <button class="password-toggle" type="button" data-password-toggle="portal-password" aria-label="Tampilkan kata sandi" aria-controls="portal-password" aria-pressed="false" hidden>
+                        <span class="eye-symbol" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+            <button class="portal-submit" type="submit">Masuk ke portal <span aria-hidden="true">→</span></button>
+            <div class="portal-help">
+                <a href="/lupa-password">Lupa kata sandi?</a>
+                <a href="/kirim-aktivasi">Kirim ulang aktivasi</a>
+            </div>
+            <p class="portal-register">Sudah mendapat nomor pendaftaran? <a href="/daftar-akun">Buat akun</a></p>
+        </form>
+    </section>
+</section>
+{% endblock %}

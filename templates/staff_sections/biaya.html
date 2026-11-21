@@ -1,0 +1,45 @@
+<section class="card section">
+<h2>Rincian biaya daftar ulang</h2>
+<p>Biaya putra dan putri sama dalam satu jenjang. Versi baru tidak mengubah tagihan peserta yang telah diterbitkan.</p>
+<form method="post" class="stack">{{ csrf() }}<input type="hidden" name="action" value="fee">
+<label>Jenjang<select name="level">
+<option>MI</option>
+<option value="MTS">MTs</option>
+<option>MA</option>
+</select>
+</label>
+<div data-fee-editor>
+<p>Isi nama tagihan dan nominal dalam angka, misalnya 1000000 untuk Rp1.000.000.</p>
+<div data-fee-rows>
+<div class="fee-row">
+<label>Nama tagihan<input name="component_name" placeholder="Contoh: Kitab" maxlength="150" required></label>
+<label>Nominal (Rp)<input name="component_amount" type="number" inputmode="numeric" min="1" max="999999999" step="1" placeholder="1000000" required></label>
+<button type="button" class="secondary" data-fee-remove aria-label="Hapus baris tagihan" disabled>Hapus</button>
+</div>
+</div>
+<button type="button" class="secondary" data-fee-add>+ Tambah tagihan</button>
+<p class="notice" role="status">Total: <strong data-fee-total>Rp0</strong></p>
+</div>
+<button>Tetapkan versi tagihan baru</button>
+</form>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Versi</th>
+<th>Jenjang</th>
+<th>Rincian</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>{% for fee in fees %}<tr>
+<td>{{ fee.id }}</td>
+<td>{{ fee.level }}</td>
+<td>{% for c in fee.components|fromjson %}{{ c.name }}: {{ c.amount|rupiah }}<br>{% endfor %}</td>
+<td>{{ fee.total|rupiah }}</td>
+</tr>{% else %}<tr>
+<td colspan="4" class="empty">Biaya daftar ulang belum ditentukan.</td>
+</tr>{% endfor %}</tbody>
+</table>
+</div>
+</section>

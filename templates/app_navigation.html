@@ -1,0 +1,31 @@
+<aside class="app-sidebar" aria-label="Menu aplikasi">
+  <a class="app-brand" href="/dashboard"><img src="{{ url_for('static',filename='images/logo-daarul-falah.png') }}" alt="Logo Daarul Falah 2" width="48" height="48"><span>Daarul Falah 2<small>Portal santri baru</small></span></a>
+  <div class="sidebar-role">{{ app_role }}</div>
+  <nav><a href="/dashboard" class="sidebar-link {{ 'selected' if request.endpoint in ['dashboard','detail'] else '' }}"><span aria-hidden="true">🏠</span>Dashboard</a>
+  <details class="sidebar-category" open><summary>Menu layanan<span class="sidebar-chevron" aria-hidden="true"></span></summary><div class="sidebar-items">
+  {% for item in app_menus %}
+  {% if item.children %}<details class="sidebar-group" {% if request.path.startswith(item.url) %}open{% endif %}>
+    <summary class="sidebar-link {{ 'selected' if request.path.startswith(item.url) else '' }}"><span aria-hidden="true">{{ item.icon }}</span><span>{{ item.label }}</span><i class="sidebar-chevron" aria-hidden="true"></i></summary>
+    <div class="sidebar-submenu"><a class="sidebar-sublink {{ 'selected' if request.path==item.url else '' }}" href="{{ item.url }}">Ringkasan biodata</a>{% for child in item.children %}<a class="sidebar-sublink {{ 'selected' if request.path==child.url else '' }}" href="{{ child.url }}" {% if request.path==child.url %}aria-current="page"{% endif %}>{{ child.label }}</a>{% endfor %}</div>
+  </details>{% else %}<a class="sidebar-link {{ 'selected' if request.path==item.url else '' }}" href="{{ item.url }}"><span aria-hidden="true">{{ item.icon }}</span>{{ item.label }}</a>{% endif %}
+  {% endfor %}</div></details>
+  <a class="sidebar-link {{ 'selected' if request.path=='/akun' else '' }}" href="/akun"><span aria-hidden="true">⚙️</span>Akun saya</a></nav>
+  <form action="/logout" method="post" class="sidebar-logout"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button type="submit">Keluar dari akun ↗</button></form>
+</aside>
+<header class="app-topbar">
+  <a href="/dashboard" class="app-mobile-brand"><img src="{{ url_for('static',filename='images/logo-daarul-falah.png') }}" alt="Logo Daarul Falah 2" width="42" height="42"><span>Daarul Falah 2<small>Portal PSB · 2027/2028</small></span></a>
+  <div class="app-desktop-heading"><strong>Portal Penerimaan Santri Baru</strong><span>{{ app_role }}</span></div>
+  <div class="topbar-actions"><a class="notification-button" href="{{ app_alert_url }}" aria-label="{{ 'Pemberitahuan' if current_user.participant_id else 'Pekerjaan menunggu' }}">🔔</a><a class="account-chip" href="/akun">{% if profile_photo %}<img class="profile-avatar" src="/foto/{{ profile_photo.id }}" alt="Foto profil">{% else %}<span class="profile-placeholder" aria-hidden="true"></span>{% endif %}<span>{{ current_user.username }}</span></a></div>
+</header>
+<nav class="mobile-dock" aria-label="Navigasi cepat">
+  <a href="/dashboard" class="{{ 'current' if request.endpoint in ['dashboard','detail'] else '' }}"><span aria-hidden="true">⌂</span><small>Beranda</small></a>
+  <a href="/dashboard#menu" data-app-menu-open aria-label="Buka semua menu"><span aria-hidden="true">▦</span><small>Menu</small></a>
+  <a class="dock-center" href="/dashboard" aria-label="Dashboard Daarul Falah 2"><img src="{{ url_for('static',filename='images/logo-daarul-falah.png') }}" alt="" width="40" height="40"></a>
+  <a href="{{ app_alert_url }}"><span aria-hidden="true">🔔</span><small>{{ 'Info' if current_user.participant_id else 'Tugas' }}</small></a>
+  <a href="/akun" class="{{ 'current' if request.path=='/akun' else '' }}"><span aria-hidden="true">👤</span><small>Akun</small></a>
+</nav>
+<dialog id="app-menu-dialog" class="app-menu-dialog" aria-labelledby="all-menu-heading">
+  <div class="dialog-heading"><h2 id="all-menu-heading">Semua menu</h2><button type="button" data-app-menu-close aria-label="Tutup menu">×</button></div>
+  <p>{{ app_role }}</p><div class="app-menu-grid compact">{% for item in app_menus %}<a class="app-menu-tile" href="{{ item.url }}"><span class="menu-icon" aria-hidden="true">{{ item.icon }}</span><strong>{{ item.label }}</strong></a>{% endfor %}</div>
+  <form action="/logout" method="post" class="dialog-logout"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button type="submit" class="secondary">Keluar dari akun</button></form>
+</dialog>

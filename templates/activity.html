@@ -1,0 +1,78 @@
+{% extends 'base.html' %}{% from 'macros.html' import csrf,field,confirm %}{% block content %}<div class="page-head">
+<div>
+<div class="eyebrow">PENGAWASAN</div>
+<h1>Riwayat aktivitas</h1>
+<p>300 aktivitas dan 200 notifikasi terbaru. Seluruh riwayat tetap disimpan di database.</p>
+</div>
+</div>
+<section class="card">
+<h2>Antrean pemberitahuan</h2>{% if email_simulation %}<div class="notice">Email masih mode simulasi: belum dikirim ke alamat wali. Tautan aktivasi/reset dapat diperiksa di sini untuk pengujian lokal.</div>{% endif %}{% if simulation %}<div class="notice">WhatsApp dan kanal selain email masih mode simulasi.</div>{% endif %}<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Kanal</th>
+<th>Status / upaya</th>
+<th>Pesan</th>
+<th>Catatan</th>
+</tr>
+</thead>
+<tbody>{% for e in outbox %}<tr>
+<td>{{ e.channel }}</td>
+<td>{{ e.status }} / {{ e.attempts }}</td>
+<td>{{ e.message }}
+{% if e.account_number %}<p><strong>Akun: {{ e.account_number }}</strong> ? {{ e.created_at|waktu }}<br>{{ e.account_status }}</p>{% endif %}
+{% if e.account_link %}<a class="button small" href="{{ e.account_link }}">{{ e.account_label }}</a>{% endif %}
+</td>
+<td>{{ e.last_error or '—' }}
+{% if e.status in ['diproses','gagal'] %}
+<details>
+<summary>Rekonsiliasi pengiriman</summary>
+<form method="post" class="stack">
+{{ csrf() }}<input type="hidden" name="event_id" value="{{ e.id }}">
+<label>Hasil pemeriksaan penyedia<select name="action">
+<option value="retry">Belum dikirim, izinkan percobaan ulang</option>
+<option value="delivered">Sudah diterima penyedia</option>
+</select>
+</label>
+{{ field('reason','Catatan pemeriksaan penyedia') }}
+{{ field('delivery_id','Identitas pengiriman jika sudah diterima',required=false) }}
+{{ confirm('Saya telah memeriksa status pada penyedia untuk mencegah pengiriman ganda.') }}
+<button>Simpan rekonsiliasi</button>
+</form>
+</details>{% endif %}</td>
+</tr>{% else %}<tr>
+<td colspan="4" class="empty">Antrean masih kosong.</td>
+</tr>{% endfor %}</tbody>
+</table>
+</div>
+</section>
+<section class="card section">
+<h2>Audit perubahan</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Waktu (WIB)</th>
+<th>Petugas</th>
+<th>Tindakan</th>
+<th>Data</th>
+<th>Alasan</th>
+</tr>
+</thead>
+<tbody>{% for a in rows %}<tr>
+<td>{{ a.created_at|waktu }}</td>
+<td>{{ a.username or 'Sistem / pengajuan publik' }}</td>
+<td>{{ a.action }}<small>{{ a.entity }} #{{ a.entity_id or '—' }}</small>
+</td>
+<td>
+<details>
+<summary>Lihat perubahan</summary>
+<p>Sebelum: {{ a.old_value }}</p>
+<p>Sesudah: {{ a.new_value }}</p>
+</details>
+</td>
+<td>{{ a.reason or '—' }}</td>
+</tr>{% endfor %}</tbody>
+</table>
+</div>
+</section>{% endblock %}

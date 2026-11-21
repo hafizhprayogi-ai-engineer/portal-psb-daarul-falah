@@ -1,0 +1,25 @@
+<section class="card section" id="dokumen">
+<h2>Dokumen & bukti</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Dokumen</th>
+<th>Versi</th>
+<th>Terbit</th>
+<th>Keabsahan</th>
+<th>Unduh</th>
+</tr>
+</thead>
+<tbody>{% for d in docs %}<tr>
+<td>{{ d.kind|replace('_',' ')|title }}</td>
+<td>{{ d.version }}</td>
+<td>{{ d.created_at|tanggal }}</td>
+<td>{{ 'Berlaku' if d.valid else 'Tidak berlaku' }}</td>
+<td>{% if (d.valid or not owner) and (d.kind!='kuitansi' or owner or has_role('admin','bendahara')) %}<a href="/dokumen/{{ d.id }}">PDF</a>{% if d.kind=='kelulusan' and has_role('pemberkasan','admin') %} · <a href="/dokumen/{{ d.id }}?format=docx">Word</a>{% endif %}{% else %}—{% endif %}</td>
+</tr>{% else %}<tr>
+<td colspan="5" class="empty">Dokumen akan muncul setelah prasyarat dipenuhi.</td>
+</tr>{% endfor %}</tbody>
+</table>
+</div>
+</section>

@@ -1,0 +1,14 @@
+{% macro csrf() %}<input type="hidden" name="csrf" value="{{ csrf_token() }}">{% endmacro %}
+{% macro key() %}<input type="hidden" name="key" value="{{ nonce() }}">{% endmacro %}
+{% macro field(name,label,type='text',value='',required=true) %}<label>{{ label }}<input type="{{ type }}" name="{{ name }}" value="{{ value or '' }}" {% if required %}required{% endif %} {% if type=='password' %}minlength="8" autocomplete="new-password"{% endif %}>
+</label>{% endmacro %}
+{% macro initial() %}<div class="formgrid">
+<label>Jenjang<select name="level" required>
+<option value="">Pilih jenjang</option>
+<option>MI</option>
+<option value="MTS">MTs</option>
+<option>MA</option>
+</select>
+</label>{{ field('name','Nama lengkap peserta') }}{{ field('birth_place','Tempat lahir') }}{{ field('birth_date','Tanggal lahir','date') }}{{ field('phone','WhatsApp orang tua','tel') }}{{ field('email','Email orang tua','email') }}</div>{% endmacro %}
+{% macro confirm(label='Saya sudah memeriksa dan mengonfirmasi tindakan ini.') %}<label class="check">
+<input type="checkbox" name="confirm" value="ya" required> {{ label }}</label>{% endmacro %}

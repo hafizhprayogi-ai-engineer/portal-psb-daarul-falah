@@ -1,0 +1,28 @@
+{% extends 'base.html' %}{% from 'macros.html' import csrf,key %}{% block content %}<div class="page-head">
+<div>
+<div class="eyebrow">PANTAU PENDAFTARAN</div>
+<h1>{{ a.name }}</h1>
+<p>{{ a.reference }} · {{ a.level }} · 2027/2028</p>
+</div>
+<span class="badge">{{ a.status }}</span>
+</div>
+<div class="two-col">
+<section class="card">
+<h2>Langkah berikutnya</h2>{% if p %}<p>Pembayaran sudah disahkan. Nomor pendaftaran Anda:</p>
+<div class="amount">{{ p.number }}</div>
+<p>Gunakan nomor dan data awal yang sama untuk membuat akun, kemudian aktifkan melalui email.</p>
+<a class="button" href="/daftar-akun">Buat akun peserta →</a>{% if receipt %}<p>
+<a href="/pantau/{{ token }}/bukti/{{ receipt.id }}">Unduh bukti pembayaran PDF</a>
+</p>{% endif %}{% elif a.status=='Menunggu verifikasi' %}<div class="notice">Bendahara sedang memeriksa bukti Anda. Muat ulang halaman ini untuk melihat perkembangan.</div>{% else %}<p>Transfer <strong>Rp200.000</strong> ke rekening berikut.</p>{% if cfg.get('bank') and cfg.get('bank_number') and cfg.get('bank_owner') %}<div class="bank">{{ cfg.bank }}<strong>{{ cfg.bank_number }}</strong>a.n. {{ cfg.bank_owner }}</div>
+<form method="post" enctype="multipart/form-data" class="stack">{{ csrf() }}{{ key() }}<label>Bukti transfer<input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required>
+<small>PDF, JPG, atau PNG · maksimal 5 MB</small>
+</label>
+<button>Kirim bukti pembayaran</button>
+</form>{% else %}<div class="notice">Rekening tujuan belum tersedia. Data pengajuan Anda sudah tersimpan.</div>{% endif %}{% endif %}</section>
+<section class="card">
+<h2>Riwayat pembayaran</h2>{% for pay in payments %}<article class="history">
+<span class="badge">{{ pay.status }}</span>
+<p>{{ pay.created_at|tanggal }} · {{ pay.amount|rupiah }}</p>{% if pay.reason %}<div class="notice warning">{{ pay.reason }}</div>{% endif %}</article>{% else %}<div class="empty">Belum ada bukti yang dikirim.</div>{% endfor %}<hr>
+<p class="muted">Simpan alamat halaman ini untuk memantau pengajuan. Tautan juga masuk ke antrean pemberitahuan WhatsApp dan email.</p>
+</section>
+</div>{% endblock %}

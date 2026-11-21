@@ -1,0 +1,58 @@
+<section id="pembayaran" class="card">
+<h2>Tagihan daftar ulang</h2>{% if not docs_complete %}<p class="notice">Berkas belum lengkap. Pembayaran tetap dapat dilanjutkan; daftar ulang baru selesai setelah pembayaran lunas dan seluruh berkas wajib diterima.</p>{% endif %}{% if not bal.invoice %}<div class="notice">Menunggu penetapan tagihan. Nominal belum ditentukan dan belum dianggap lunas.</div>{% else %}<dl class="bill">{% for component in bal.invoice.components|fromjson %}<dt>{{ component.name }}</dt>
+<dd>{{ component.amount|rupiah }}</dd>{% endfor %}<dt>
+<strong>Total tagihan</strong>
+</dt>
+<dd>
+<strong>{{ bal.invoice.total|rupiah }}</strong>
+</dd>
+<dt>Pembayaran sah</dt>
+<dd>{{ bal.paid|rupiah }}</dd>
+<dt>
+<strong>Sisa tagihan</strong>
+</dt>
+<dd>
+<strong>{{ bal.remaining|rupiah }}</strong>
+</dd>
+</dl>
+<span class="badge">{{ 'Lunas' if bal.remaining==0 else 'Belum lunas' }}</span>
+<p>Maksimal dua pembayaran sah. Pertama minimal 50%, kedua melunasi sisa. Batas pelunasan 30 September 2027.</p><p>Tenggat cicilan pertama {{ cfg.get('first_deadline')|tanggal }}.</p>{% if owner and p.published_result=='Lulus' and bal.remaining %}{% if bal.count>=2 %}<div class="notice warning">Terdapat kekurangan setelah dua pembayaran. Hubungi Bendahara untuk penanganan koreksi transaksi.</div>{% elif cfg.get('bank') and cfg.get('bank_number') and cfg.get('bank_owner') %}<div class="bank">{{ cfg.bank }}<strong>{{ cfg.bank_number }}</strong>a.n. {{ cfg.bank_owner }}</div>
+<details>
+<summary>Unggah bukti transfer</summary>
+<form method="post" action="/peserta/{{ p.id }}/payment" enctype="multipart/form-data" class="stack">{{ csrf() }}{{ key() }}<label>Nominal transfer (rupiah)<input type="number" name="amount" min="1" max="{{ bal.remaining }}" step="1" required>
+</label>
+<label>Bukti transfer<input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required>
+</label>
+<button>Kirim untuk verifikasi</button>
+</form>
+</details>{% else %}<div class="notice">Rekening belum tersedia. Hubungi Bendahara untuk pembayaran tunai.</div>{% endif %}{% endif %}{% endif %}</section>
+<section class="card">
+<h2>Riwayat pembayaran</h2>{% for pay in payments %}<article class="history">
+<div class="split">
+<strong>{{ pay.amount|rupiah }}</strong>
+<span class="badge">{{ pay.status }}</span>
+</div>
+<p>{{ pay.kind|replace('_',' ')|title }} · {{ pay.method|title }}<br>{{ pay.created_at|tanggal }}</p>{% if pay.reason %}<p class="muted">{{ pay.reason }}</p>{% endif %}</article>{% else %}<div class="empty">Belum ada pembayaran.</div>{% endfor %}</section>
+
+{% if bal.invoice and has_role('admin') %}
+<section class="card"><h2>Revisi tagihan peserta</h2>
+<p>Perubahan hanya berlaku untuk peserta ini. Pembayaran sah tetap diperhitungkan. Versi biaya umum tidak berubah.</p>
+<details><summary>Ubah rincian tagihan</summary>
+<form method="post" action="/peserta/{{ p.id }}/revisi-tagihan" class="stack" data-confirm="Simpan revisi tagihan peserta ini?">
+{{ csrf() }}<input type="hidden" name="revision_token" value="{{ revision_token }}">
+<div data-fee-editor><div data-fee-rows>
+{% for c in bal.invoice.components|fromjson %}<div class="fee-row">
+<label>Nama tagihan<input name="component_name" value="{{ c.name }}" maxlength="150" required></label>
+<label>Nominal (Rp)<input name="component_amount" type="number" inputmode="numeric" min="1" max="999999999" step="1" value="{{ c.amount }}" required></label>
+<button type="button" class="secondary" data-fee-remove>Hapus</button></div>{% endfor %}
+</div><button type="button" class="secondary" data-fee-add>+ Tambah tagihan</button>
+<p role="status">Total: <strong data-fee-total>{{ bal.invoice.total|rupiah }}</strong></p></div>
+<label>Alasan revisi<textarea name="reason" minlength="3" maxlength="500" required></textarea></label>
+<label><input type="checkbox" name="confirm" value="ya" required> Saya menyetujui perubahan tagihan peserta ini.</label>
+<button>Simpan revisi tagihan</button></form></details></section>
+{% endif %}
+{% if invoice_history %}<section class="card"><h2>Riwayat revisi tagihan</h2>
+{% for item in invoice_history %}{% set old = item.old_value|fromjson %}{% set new = item.new_value|fromjson %}
+<article class="history"><p>{{ item.created_at|tanggal }} ? {{ item.reason }}</p><p>Total: {{ old.total|rupiah }} ? {{ new.total|rupiah }}</p>
+<details><summary>Lihat rincian perubahan</summary><p>Sebelumnya</p>{% for c in old.components|fromjson %}<p>{{ c.name }}: {{ c.amount|rupiah }}</p>{% endfor %}<p>Sesudah revisi</p>{% for c in new.components %}<p>{{ c.name }}: {{ c.amount|rupiah }}</p>{% endfor %}</details></article>
+{% endfor %}</section>{% endif %}

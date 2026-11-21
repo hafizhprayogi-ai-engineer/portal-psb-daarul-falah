@@ -1,0 +1,99 @@
+{% extends 'base.html' %}{% block content %}
+<section class="hero">
+<div class="hero-copy">
+<div class="eyebrow">
+<span class="dot">
+</span> PENERIMAAN SANTRI BARU 2027/2028</div>
+<h1>Awal langkah baik,<br>
+<em>masa depan berarti.</em>
+</h1>
+<p>Bertumbuh dalam ilmu, iman, dan akhlak bersama Pondok Pesantren Daarul Falah 2 Maliku.</p>
+<div class="actions">
+<a class="button" href="/pendaftaran-online">Mulai pendaftaran <span>↗</span>
+</a>
+<a class="button secondary" href="/daftar-akun">Sudah punya nomor?</a>
+</div>
+<div class="hero-meta">
+<span>MI · MTs · MA</span>
+<span>Santri putra & putri</span>
+<span>Tanpa pas foto</span>
+</div>
+</div>
+<div class="hero-panel">
+<div class="arch">
+<div class="ornament">✦</div>
+<div class="arch-inner">
+<small>SELAMAT DATANG DI</small>
+<h2>Daarul Falah 2</h2>
+<p>Maliku</p>
+<div class="line">
+</div>
+<span>Ilmu yang bermanfaat.<br>Akhlak yang menguatkan.</span>
+</div>
+</div>
+<div class="panel-foot">
+<span>Tahun ajaran</span>
+<strong>2027 / 2028</strong>
+</div>
+</div>
+</section>
+<section class="info-strip">
+<div>
+<small>BIAYA PENDAFTARAN</small>
+<strong>Rp200.000 <span>/ peserta</span>
+</strong>
+</div>
+<div>
+<small>PERIODE PENDAFTARAN</small>
+<strong class="normal">{% if cfg.get('open_date') and cfg.get('close_date') %}{{ cfg.open_date|tanggal }} – {{ cfg.close_date|tanggal }}{% else %}Belum ditentukan{% endif %}</strong>
+</div>
+<div>
+<small>LOKASI TES</small>
+<strong class="normal">Pondok Pesantren<br>Daarul Falah 2 Maliku</strong>
+</div>
+</section>
+<section class="section">
+<div class="section-head">
+<div>
+<div class="eyebrow">SELALU ADA LANGKAH YANG JELAS</div>
+<h2>Perjalanan menjadi santri</h2>
+</div>
+<p>Satu akun untuk satu anak.<br>Email dan WhatsApp orang tua boleh sama.</p>
+</div>
+<div class="steps">{% for title,text in [('Daftar & bayar','Isi data awal secara online atau datang langsung. Biaya pendaftaran Rp200.000.'),('Aktifkan akun','Setelah pembayaran disahkan, gunakan nomor pendaftaran untuk membuat akun.'),('Lengkapi & ikuti tes','Isi biodata, pilih tanggal tes yang dibuka, lalu unduh kartu peserta.'),('Lanjut daftar ulang','Setelah dinyatakan lulus, lengkapi dokumen dan pembayaran daftar ulang.')] %}<article>
+<span class="step-number">0{{ loop.index }}</span>
+<h3>{{ title }}</h3>
+<p>{{ text }}</p>
+</article>{% endfor %}</div>
+</section>
+<section class="two-col section">
+<article class="card tinted">
+<div class="eyebrow">PERSIAPKAN DARI SEKARANG</div>
+<h2>Jadwal pelayanan tes</h2>
+<div class="schedule-line">
+<strong>Rabu</strong>
+<span>08.30–16.30 WIB</span>
+</div>
+<div class="schedule-line">
+<strong>Minggu</strong>
+<span>09.30–16.00 WIB</span>
+</div>
+<p>Pilih tanggal spesifik yang tersedia melalui akun. Tidak ada pembagian jam kedatangan; datang kapan saja dalam jam pelayanan pada tanggal terpilih.</p>
+<p>
+<strong>MI:</strong> membaca dan menulis.<br>
+<strong>MTs & MA:</strong> membaca Al-Qur’an, tes tertulis, dan wawancara.</p>
+</article>
+<article class="card">
+<div class="eyebrow">SETELAH DINYATAKAN LULUS</div>
+<h2>Dokumen yang disiapkan</h2>
+<ul class="checklist">
+<li>Formulir bertanda tangan wali</li>
+<li>Akta kelahiran dan kartu keluarga</li>
+<li>KTP ayah dan ibu; KTP wali dapat menggantikan dengan alasan</li>
+<li>MTs & MA: SKL atau ijazah. Ijazah boleh menyusul.</li>
+</ul>
+<p>Pembayaran daftar ulang dapat dicicil maksimal dua kali. Cicilan pertama minimal 50%. Batas pelunasan <strong>30 September 2027</strong>.</p>
+<a class="text-link" href="/login">Lihat perkembangan pendaftaran →</a>
+</article>
+</section>
+{% endblock %}

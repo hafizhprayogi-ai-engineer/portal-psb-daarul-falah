@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head">
+<div>
+<h1>Pemindai kartu peserta</h1>
+<p>Pindai QR untuk membuka identitas dan jadwal peserta, kemudian konfirmasikan kehadiran.</p>
+</div>
+</div>
+<section class="card scanner">
+  <div class="actions">
+<button type="button" id="start-camera">Mulai kamera</button>
+<button type="button" class="secondary" id="stop-camera" disabled>Hentikan kamera</button>
+</div>
+  <video id="camera" muted playsinline aria-label="Tampilan kamera pemindai">
+</video>
+  <p id="scanner-status" role="status">Kamera akan aktif setelah Anda menekan Mulai kamera dan memberi izin browser.</p>
+  <p>Jika kamera atau pemindai tidak tersedia, cari nama atau nomor peserta secara manual.</p>
+  <a class="button secondary" href="/peserta">Cari peserta manual</a>
+</section>
+{% endblock %}

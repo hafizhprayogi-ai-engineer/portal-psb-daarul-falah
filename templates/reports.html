@@ -1,0 +1,33 @@
+{% extends 'base.html' %}{% block content %}<div class="page-head">
+<div>
+<div class="eyebrow">REKAPITULASI</div>
+<h1>Laporan penerimaan</h1>
+<p>Unduh Excel dengan filter sesuai kebutuhan. Data mengikuti kewenangan akun.</p>
+</div>
+</div>
+<div class="two-col">{% for kind,label,role in [('pendaftaran','Laporan pendaftaran','pemberkasan'),('pembayaran','Laporan pembayaran','bendahara')] %}{% if has_role(role,'admin') %}<section class="card">
+<h2>{{ label }}</h2>
+<form action="/laporan/{{ kind }}.xlsx" method="get" class="stack">
+<label>Tahun ajaran<select name="year">
+<option>2027/2028</option>
+</select>
+</label>
+<label>Jenjang<select name="level">
+<option value="">Semua jenjang</option>
+<option>MI</option>
+<option value="MTS">MTs</option>
+<option>MA</option>
+</select>
+</label>
+<div class="formgrid">
+<label>Dari tanggal<input type="date" name="start">
+</label>
+<label>Sampai tanggal<input type="date" name="end">
+</label>
+</div>
+<label>Status<select name="status">
+<option value="">Semua status</option>{% for status in (['Lulus','Tidak lulus'] if kind=='pendaftaran' else ['Menunggu verifikasi','Disahkan','Ditolak']) %}<option>{{ status }}</option>{% endfor %}</select>
+</label>
+<button>Unduh Excel →</button>
+</form>
+</section>{% endif %}{% endfor %}</div>{% endblock %}

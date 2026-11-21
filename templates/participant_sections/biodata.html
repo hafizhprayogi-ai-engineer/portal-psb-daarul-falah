@@ -1,0 +1,5 @@
+﻿{% if bio_group %}{% include 'biodata_group.html' %}{% else %}
+<section class="card bio-overview"><h2>Biodata santri</h2><p>Lengkapi biodata melalui bagian di bawah ini. Setiap bagian mempunyai halaman dan tombol simpan sendiri.</p><div class="bio-completion"><strong>{{ bio_status.values()|select|list|length }}/4</strong><span>bagian memenuhi persyaratan</span><span class="badge">{{ 'Terkunci sejak kartu diterbitkan' if p.locked_at else ('Lengkap' if p.bio_complete else 'Perlu dilengkapi') }}</span></div></section>
+<div class="app-menu-grid bio-menu-grid">{% for key,group in bio_groups.items() %}<a class="app-menu-tile" href="/peserta/{{ p.id }}/menu/biodata/{{ key }}"><span class="menu-icon" aria-hidden="true">{{ group.icon }}</span><strong>{{ group.label }}</strong><small>{{ 'Lengkap' if bio_status[key] else 'Perlu dilengkapi' }}</small></a>{% endfor %}</div>
+{% if p.locked_at %}<div class="notice">Perubahan biodata yang terkunci dilakukan melalui bagian Pemberkasan dan dicatat dalam riwayat.</div>{% endif %}
+{% endif %}

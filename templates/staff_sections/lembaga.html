@@ -1,0 +1,21 @@
+<section class="card">
+<h2>Periode, rekening & template</h2>
+<form method="post" class="stack">{{ csrf() }}<input type="hidden" name="action" value="settings">
+<div class="formgrid">{% for name,label,type in [('open_date','Tanggal buka pendaftaran','date'),('close_date','Tanggal tutup pendaftaran','date'),('contact','WhatsApp panitia','text'),('bank','Nama bank','text'),('bank_number','Nomor rekening','text'),('bank_owner','Pemilik rekening','text'),('first_deadline','Tenggat cicilan pertama (belum ditentukan)','date'),('signer','Nama penandatangan resmi','text'),('letter_number','Format nomor surat: {nomor}, {versi}','text')] %}{{ field(name,label,type,cfg.get(name,''),false) }}{% endfor %}<label>Kop surat (teks)<textarea name="letterhead">{{ cfg.get('letterhead','') }}</textarea>
+</label>
+<label>Isi template formulir bersama MI/MTs/MA<textarea name="form_body" rows="6">{{ cfg.get('form_body','') }}</textarea>
+</label>
+<label>Isi template surat kelulusan<textarea name="letter_body" rows="6">{{ cfg.get('letter_body','') }}</textarea>
+</label>
+</div>
+<label class="check">
+<input type="checkbox" name="template_official" value="ya" {% if cfg.get('template_official')=='ya' %}checked{% endif %}>Template, kop, dan penandatangan sudah disahkan oleh lembaga.</label>
+<p class="muted">Tanpa pengesahan, formulir dan surat menggunakan tanda DRAF. Perubahan template berlaku untuk dokumen baru; dokumen lama tetap menyimpan versinya.</p>
+<button>Simpan pengaturan</button>
+</form>
+</section>
+<section class="card section">
+<h2>Pemberitahuan</h2>
+<span class="badge">{{ 'Email simulasi — belum dikirim' if email_simulation else 'Email Gmail aktif' }}</span>
+<p>Konfigurasi layanan dan token disimpan pada lingkungan server. Periksa antrean dan status pengiriman melalui <a href="/aktivitas">Riwayat aktivitas</a>.</p>
+</section>

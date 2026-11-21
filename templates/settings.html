@@ -1,0 +1,9 @@
+﻿{% extends 'base.html' %}
+{% from 'macros.html' import csrf,field %}
+{% block content %}
+<nav class="page-breadcrumb"><a href="/dashboard">Dashboard</a><span>›</span>{% if view %}<a href="/pengaturan">Pengaturan</a><span>›</span>{% endif %}<span>{{ {'lembaga':'Pengaturan lembaga','biaya':'Biaya & tagihan','petugas':'Akun petugas'}.get(view,'Pengaturan') }}</span></nav>
+<div class="app-page-heading"><div><p>{{ app_role }}</p><h1>{{ {'lembaga':'Pengaturan lembaga','biaya':'Biaya & tagihan','petugas':'Akun petugas'}.get(view,'Pengaturan sistem') }}</h1></div>{% if view %}<a href="/pengaturan">Semua pengaturan →</a>{% endif %}</div>
+{% if view %}{% include 'staff_sections/' ~ view ~ '.html' %}{% else %}
+<div class="app-menu-grid"><a class="app-menu-tile" href="/pengaturan/lembaga"><span class="menu-icon" aria-hidden="true">🏫</span><strong>Pengaturan lembaga</strong><small>Periode, rekening, template</small></a><a class="app-menu-tile" href="/pengaturan/biaya"><span class="menu-icon" aria-hidden="true">🧮</span><strong>Biaya & tagihan</strong><small>Rincian per jenjang</small></a><a class="app-menu-tile" href="/pengaturan/petugas"><span class="menu-icon" aria-hidden="true">👥</span><strong>Akun petugas</strong><small>Akun dan peran</small></a><a class="app-menu-tile" href="/aktivitas"><span class="menu-icon" aria-hidden="true">🕘</span><strong>Riwayat aktivitas</strong><small>Audit dan notifikasi</small></a></div>
+{% endif %}
+{% endblock %}

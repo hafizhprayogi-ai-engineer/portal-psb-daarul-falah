@@ -1,0 +1,26 @@
+{% from 'biodata_fields.html' import input_field with context %}
+<nav class="bio-tabs" aria-label="Bagian biodata">{% for key,group in bio_groups.items() %}<a href="/peserta/{{ p.id }}/menu/biodata/{{ key }}" class="{{ 'active' if key==bio_group else '' }}" {% if key==bio_group %}aria-current="page"{% endif %}>{{ group.label }}</a>{% endfor %}</nav>
+<section id="biodata" class="card section bio-form-card">
+<div class="section-head"><h2>{{ bio_groups[bio_group].label }}</h2><span class="badge">{{ 'Terkunci sejak kartu diterbitkan' if p.locked_at else ('Lengkap' if bio_status[bio_group] else 'Perlu dilengkapi') }}</span></div>
+{% if bio_group=='sekolah' and p.level=='MI' %}<div class="notice">Untuk MI yang belum pernah sekolah, seluruh kolom sekolah asal boleh dikosongkan.</div>{% endif %}
+{% if (owner and not p.locked_at) or has_role('pemberkasan') %}
+<p class="muted">Simpan bagian ini setelah mengisi data. Kolom bertanda * wajib dilengkapi.</p>
+<form method="post" action="/peserta/{{ p.id }}/{{ 'staff-bio' if has_role('pemberkasan') and not owner else 'bio' }}" class="stack" {% if bio_group=='sekolah' and p.level=='MI' %}data-mi-school{% endif %}>
+{{ csrf() }}<input type="hidden" name="bio_group" value="{{ bio_group }}">
+{% if bio_group=='orang-tua' %}
+{% for parent, label in [('father','Ayah'),('mother','Ibu')] %}
+<fieldset class="bio-parent" data-parent-fields="{{ parent }}"><legend>Data {{ label }}</legend>
+<label class="check"><input type="checkbox" name="{{ parent }}_unavailable" value="ya" data-parent-unavailable {% if bio.get(parent ~ '_unavailable')=='ya' %}checked{% endif %}>Data {{ label|lower }} tidak tersedia</label>
+<label>Keterangan jika data {{ label|lower }} tidak tersedia<textarea name="{{ parent }}_note" maxlength="2000" data-parent-note {% if bio.get(parent ~ '_unavailable')=='ya' %}required{% endif %}>{{ bio.get(parent ~ '_note','') }}</textarea></label>
+<div class="formgrid">{% for key in bio_groups[bio_group].fields if key.startswith(parent ~ '_') %}{{ input_field(key,bio_fields[key],bio.get(key,''), key in bio_required) }}{% endfor %}</div>
+</fieldset>{% endfor %}
+{% else %}<div class="formgrid">{% for key in bio_groups[bio_group].fields %}{{ input_field(key,bio_fields[key],bio.get(key,''), key in bio_required) }}{% endfor %}</div>{% endif %}
+{% if not owner %}<label>Alasan perubahan oleh petugas<input name="reason" required maxlength="2000" value="{{ bio.get('edit_reason','') }}"></label>{% endif %}
+<div class="actions"><button type="submit">Simpan {{ bio_groups[bio_group].label }}</button><a href="/peserta/{{ p.id }}/menu/biodata">Ringkasan biodata</a></div>
+</form>
+{% else %}
+<dl class="data-grid">{% for key in bio_groups[bio_group].fields %}<dt>{{ bio_fields[key][0] }}</dt><dd>{{ bio.get(key) or 'Belum diisi' }}</dd>{% endfor %}
+{% if bio_group=='orang-tua' %}{% for parent,label in [('father','Ayah'),('mother','Ibu')] %}{% if bio.get(parent ~ '_note') %}<dt>Keterangan data {{ label|lower }}</dt><dd>{{ bio.get(parent ~ '_note') }}</dd>{% endif %}{% endfor %}{% endif %}</dl>
+{% if owner %}<div class="notice">Biodata sudah dikunci. Hubungi Pemberkasan untuk pembaruan atau perbaikan data.</div>{% endif %}
+{% endif %}
+</section>

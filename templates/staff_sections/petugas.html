@@ -1,0 +1,20 @@
+<section class="card section">
+<h2>Akun petugas & peran</h2>
+<p>Admin Utama tidak otomatis menjadi Bendahara atau Pemberkasan. Pilih lebih dari satu peran hanya jika diperlukan. Pemegang ketiga peran disebut Ketua PSB.</p>
+<details>
+<summary>Buat akun petugas</summary>
+<form method="post" class="stack">{{ csrf() }}<input type="hidden" name="action" value="staff">
+<div class="formgrid">{{ field('username','Username petugas') }}{{ field('password','Kata sandi awal (minimal 8 karakter)','password') }}</div>
+<div class="actions">{% for role,label in [('admin','Admin Utama'),('pemberkasan','Pemberkasan'),('bendahara','Bendahara')] %}<label class="check">
+<input type="checkbox" name="roles" value="{{ role }}">{{ label }}</label>{% endfor %}</div>
+<button>Buat petugas</button>
+</form>
+</details>{% for user in staff %}<details>
+<summary>{{ user.username }} · {{ 'Ketua PSB' if 'admin' in user.roles.split(',') and 'bendahara' in user.roles.split(',') and 'pemberkasan' in user.roles.split(',') else user.roles }} · {{ 'Aktif' if user.active else 'Nonaktif' }}</summary>
+<form method="post" class="stack">{{ csrf() }}<input type="hidden" name="action" value="roles">
+<input type="hidden" name="user_id" value="{{ user.id }}">{% for role,label in [('admin','Admin Utama'),('pemberkasan','Pemberkasan'),('bendahara','Bendahara')] %}<label class="check">
+<input type="checkbox" name="roles" value="{{ role }}" {% if role in user.roles.split(',') %}checked{% endif %}>{{ label }}</label>{% endfor %}<label class="check">
+<input type="checkbox" name="active" value="ya" {% if user.active %}checked{% endif %}>Akun aktif</label>
+<button>Simpan peran & akhiri sesi lama</button>
+</form>
+</details>{% endfor %}</section>

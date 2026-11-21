@@ -1,0 +1,5 @@
+<section class="card section" id="notifikasi">
+<h2>Pemberitahuan</h2>{% for n in notifications %}<article class="history">
+<small>{{ n.created_at|tanggal }}</small>
+<p>{{ n.message }}</p>
+</article>{% else %}<div class="empty">Belum ada pemberitahuan.</div>{% endfor %}</section>

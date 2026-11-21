@@ -1,0 +1,15 @@
+{% extends 'base.html' %}{% block content %}<section class="card verify">
+<div class="eyebrow">VERIFIKASI DOKUMEN</div>
+<h1>{% if not doc %}Dokumen tidak ditemukan{% elif doc.valid %}Dokumen berlaku{% else %}Dokumen tidak berlaku{% endif %}</h1>{% if doc %}<dl>
+<dt>Nama peserta</dt>
+<dd>{{ doc.name }}</dd>
+<dt>Nomor pendaftaran</dt>
+<dd>{{ doc.number }}</dd>
+<dt>Jenjang</dt>
+<dd>{{ doc.level }}</dd>
+<dt>Jenis dokumen</dt>
+<dd>{{ doc.kind|replace('_',' ')|title }}</dd>
+<dt>Status keabsahan</dt>
+<dd>{{ 'Berlaku' if doc.valid else 'Tidak berlaku' }}</dd>
+</dl>{% endif %}<p class="muted">Halaman ini menunjukkan keabsahan terkini. Dokumen yang telah diunduh sebelumnya tidak dapat diperbarui dari jarak jauh.</p>
+</section>{% endblock %}

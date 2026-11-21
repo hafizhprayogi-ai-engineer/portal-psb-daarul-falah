@@ -1,0 +1,20 @@
+<section class="card" id="jadwal">
+{% if not p.bio_complete %}<div class="notice">Lengkapi biodata untuk memilih tanggal tes dan menerbitkan kartu. <a href="/peserta/{{ p.id }}/menu/biodata">Buka biodata →</a></div>{% endif %}
+<div class="eyebrow">PERSIAPAN TES</div>
+<h2>Jadwal & kartu peserta</h2>{% if schedule %}<div class="scheduled">
+<strong>{{ schedule.date|tanggal }}</strong>
+<span>{{ service_hours(schedule.date) }}</span>
+{% if has_role('pemberkasan','admin') %}<a href="/jadwal/{{ schedule.id }}">Lihat peserta yang memilih tanggal ini</a>{% endif %}
+</div>
+<p>Pondok Pesantren Daarul Falah 2 Maliku</p>
+<p>{{ 'Membaca · Menulis' if p.level=='MI' else 'Membaca Al-Qur’an · Tes tertulis · Wawancara' }}</p>{% else %}<p>Jadwal belum dipilih.</p>{% endif %}{% if owner and not p.schedule_id and p.bio_complete %}<form method="post" action="/peserta/{{ p.id }}/schedule" class="stack">{{ csrf() }}<label>Tanggal tes<select name="schedule_id" required>
+<option value="">Pilih tanggal</option>{% for s in schedules %}<option value="{{ s.id }}">{{ s.date|tanggal }} · {{ service_hours(s.date) }}</option>{% endfor %}</select>
+</label>{% if schedules %}<button>Pilih tanggal tes</button>{% else %}<div class="empty">Belum ada tanggal tes yang dibuka.</div>{% endif %}</form>{% endif %}{% if p.bio_complete and (owner or has_role('pemberkasan')) %}<div class="actions">{% if p.schedule_id %}<form method="post" action="/peserta/{{ p.id }}/card">{{ csrf() }}<button>{{ 'Unduh ulang kartu' if p.locked_at else 'Terbitkan & unduh kartu' }}</button>
+</form>{% endif %}<form method="post" action="/peserta/{{ p.id }}/form">{{ csrf() }}<button class="secondary">Unduh formulir</button>
+</form>
+</div>{% if not p.locked_at %}<small>Penerbitan kartu pertama akan mengunci biodata.</small>{% endif %}{% endif %}{% if has_role('pemberkasan') %}<details>
+<summary>Pindahkan jadwal peserta</summary>
+<form method="post" action="/peserta/{{ p.id }}/move" class="stack">{{ csrf() }}<label>Tanggal pengganti<select name="schedule_id" required>{% for s in schedules %}<option value="{{ s.id }}">{{ s.date|tanggal }}</option>{% endfor %}</select>
+</label>{{ field('reason','Alasan pemindahan') }}<button>Pindahkan & beri tahu wali</button>
+</form>
+</details>{% endif %}</section>

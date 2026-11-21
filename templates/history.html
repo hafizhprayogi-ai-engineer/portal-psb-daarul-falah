@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><div><h1>Riwayat peserta</h1><p>{{ p.name }} · {{ p.number }}</p></div><a href="/peserta/{{ p.id }}">Kembali ke data peserta</a></div>
+<section class="card">
+  <h2>Seluruh versi berkas</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Berkas</th><th>Diunggah</th><th>Status pemeriksaan</th><th>Catatan</th><th>Unduh</th></tr></thead>
+    <tbody>{% for u in uploads %}<tr><td>{{ DOC_LABELS.get(u.category,u.category) }}<small>Versi unggahan #{{ u.id }}</small></td><td>{{ u.created_at|waktu }}</td><td>{{ u.status }}</td><td>{{ u.review_note or u.reason or '—' }}</td><td><a href="/berkas/{{ u.id }}">Unduh berkas</a></td></tr>{% else %}<tr><td colspan="5" class="empty">Belum ada unggahan identitas.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+<section class="card section">
+  <h2>Perubahan biodata, jadwal, seleksi, dan dokumen</h2>
+  {% for row in rows %}<details><summary>{{ row.created_at|waktu }} · {{ row.action }} · {{ row.username or 'Sistem' }}</summary><p>Alasan {{ row.reason or '—' }}</p><p>Sebelum {{ row.old_value }}</p><p>Sesudah {{ row.new_value }}</p></details>{% else %}<div class="empty">Belum ada perubahan.</div>{% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% if has_role('pemberkasan') %}<section class="card section" id="absensi">
+<div class="section-head">
+<h2>Absensi tes</h2>
+<span class="badge">{{ p.attendance }}</span>
+</div>
+<div class="notice warning">Pindai QR hanya membuka identitas peserta. Pastikan tanggal kedatangan sesuai; pencatatan kehadiran tidak mengubah jadwal.</div>
+<form method="post" action="/peserta/{{ p.id }}/attendance" class="stack">{{ csrf() }}<label>Status kehadiran<select name="attendance">
+<option>Hadir</option>
+<option>Tidak hadir</option>
+</select>
+</label>
+<label class="check">
+<input type="checkbox" name="ack" value="ya">Jika di luar tanggal terpilih, saya sudah memeriksa dan mengonfirmasi pencatatan ini tanpa mengubah jadwal.</label>
+<button>Konfirmasi kehadiran</button>
+</form>
+</section>{% endif %}

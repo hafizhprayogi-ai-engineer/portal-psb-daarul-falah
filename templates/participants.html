@@ -1,0 +1,51 @@
+{% extends 'base.html' %}{% block content %}<div class="page-head">
+<div>
+<div class="eyebrow">PEMBERKASAN & SELEKSI</div>
+<h1>{{ workflow_title or "Data santri" }}</h1>
+<p>Pencarian manual juga tersedia untuk absensi tanpa kamera.</p>
+</div>
+<a class="button secondary" href="/laporan">Ekspor laporan</a>
+</div>
+<form method="get" class="filters">
+<label>Cari peserta<input name="q" value="{{ q }}" placeholder="Nama atau nomor pendaftaran">
+</label>
+<label>Jenjang<select name="level">
+<option value="">Semua jenjang</option>{% for item in ['MI','MTS','MA'] %}<option {% if level==item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
+</label>
+{% if show_file_review %}<label>Pemeriksaan berkas<select name="review"><option value="all" {{ 'selected' if review=='all' else '' }}>Semua santri</option><option value="pending" {{ 'selected' if review=='pending' else '' }}>Menunggu pemeriksaan</option></select></label>{% endif %}
+<button>Cari peserta</button>
+</form>
+<section class="card table-wrap">
+<table>
+<thead>
+<tr>
+<th>Peserta</th>
+<th>Jenjang</th>
+<th>Kanal</th>
+<th>Kehadiran</th>
+<th>Hasil diumumkan</th>
+<th>Daftar ulang</th>
+{% if show_file_review %}<th>Pemeriksaan berkas</th>{% endif %}
+<th>
+</th>
+</tr>
+</thead>
+<tbody>{% for p in rows %}<tr class="{{ 'needs-file-review' if show_file_review and p.pending_files else '' }}">
+<td>
+<strong>{{ p.name }}</strong>
+<small>{{ p.number }}</small>{% if show_file_review and p.pending_files %}<span class="file-review-badge">Perlu diperiksa</span>{% endif %}
+</td>
+<td>{{ p.level }}</td>
+<td>{{ p.channel|title }}</td>
+<td>{{ p.attendance }}</td>
+<td>{{ p.published_result or 'Menunggu hasil' }}</td>
+<td>{{ 'Selesai' if p.completed else 'Belum selesai' }}</td>
+{% if show_file_review %}<td>{% if p.pending_files %}<strong>{{ p.pending_files }} berkas menunggu</strong><br><a href="/peserta/{{ p.id }}/menu/berkas">Periksa berkas</a>{% elif p.repair_files %}{{ p.repair_files }} berkas perlu diperbaiki wali{% else %}<span class="muted">Tidak ada berkas menunggu pemeriksaan</span>{% endif %}</td>{% endif %}
+<td>
+<a class="text-link" href="{{ '/peserta/' ~ p.id ~ '/menu/' ~ workflow ~ ('/' ~ bio_group if bio_group else '') if workflow else '/peserta/' ~ p.id }}">Lihat →</a>
+</td>
+</tr>{% else %}<tr>
+<td colspan="{{ 8 if show_file_review else 7 }}" class="empty">Belum ada peserta yang sesuai pencarian.</td>
+</tr>{% endfor %}</tbody>
+</table>
+</section>{% endblock %}

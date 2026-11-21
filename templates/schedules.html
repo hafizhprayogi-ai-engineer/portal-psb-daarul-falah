@@ -1,0 +1,27 @@
+{% extends 'base.html' %}{% from 'macros.html' import csrf,field,confirm %}{% block content %}<div class="page-head">
+<div>
+<div class="eyebrow">PELAKSANAAN TES</div>
+<h1>Jadwal tes</h1>
+<p>Rabu 08.30–16.30 WIB · Minggu 09.30–16.00 WIB · Tanpa kuota.</p>
+</div>
+</div>{% if has_role('pemberkasan') %}<section class="card">
+<h2>Buka tanggal tes</h2>
+<form method="post" class="filters">{{ csrf() }}<input type="hidden" name="action" value="open">{{ field('date','Tanggal tes','date') }}<button>Buka tanggal</button>
+</form>
+</section>{% endif %}<div class="three-col section">{% for s in rows %}<article class="card">
+<span class="badge">{{ s.status }}</span>
+<h2>{{ s.date|tanggal }}</h2>
+<p>{{ service_hours(s.date) }}<br>
+<strong>{{ s.count }} peserta</strong> terjadwal.</p><p><a class="button secondary" href="/jadwal/{{ s.id }}">Lihat peserta ({{ s.count }})</a></p>{% if s.reason %}<p>{{ s.reason }}</p>{% endif %}{% if has_role('pemberkasan') and s.status!='Dibatalkan' %}<form method="post">{{ csrf() }}<input type="hidden" name="schedule_id" value="{{ s.id }}">
+<input type="hidden" name="action" value="{{ 'close' if s.status=='Terbuka' else 'reopen' }}">
+<button class="secondary">{{ 'Tutup untuk pendaftar baru' if s.status=='Terbuka' else 'Buka kembali' }}</button>
+</form>
+<details>
+<summary>Batalkan & pindahkan peserta</summary>
+<form method="post" class="stack" data-confirm="Seluruh peserta pada tanggal ini akan dipindahkan. Lanjutkan?">{{ csrf() }}<input type="hidden" name="action" value="cancel">
+<input type="hidden" name="schedule_id" value="{{ s.id }}">
+<label>Tanggal pengganti<select name="replacement" required>
+<option value="">Pilih tanggal</option>{% for target in rows if target.status=='Terbuka' and target.id!=s.id %}<option value="{{ target.id }}">{{ target.date|tanggal }}</option>{% endfor %}</select>
+</label>{{ field('reason','Alasan pembatalan') }}{{ confirm() }}<button class="danger">Batalkan pelaksanaan</button>
+</form>
+</details>{% endif %}</article>{% else %}<div class="empty">Belum ada tanggal tes yang dibuka.</div>{% endfor %}</div>{% endblock %}

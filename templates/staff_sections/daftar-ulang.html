@@ -1,0 +1,2 @@
+<section class="card"><h2>Pembayaran daftar ulang tunai</h2><form method="post" class="stack" data-confirm="Pastikan uang tunai sudah diterima. Lanjutkan?">{{ csrf() }}{{ key() }}<input type="hidden" name="action" value="cash">{{ field('number','Nomor pendaftaran') }}{{ field('amount','Nominal diterima (rupiah)','number') }}<label>Nama penerima uang<input name="receiver_name" minlength="2" maxlength="150" placeholder="Nama petugas yang menerima uang tunai" required></label><button>Catat & sahkan pembayaran</button>
+</form></section>

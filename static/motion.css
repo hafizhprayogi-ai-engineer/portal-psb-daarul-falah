@@ -1,0 +1,85 @@
+@keyframes psb-page-enter {
+  from { opacity: 0.4; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes psb-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Navigasi server tetap berjalan normal, lalu konten tujuan muncul perlahan. */
+#utama {
+  animation: psb-page-enter 240ms ease-out;
+}
+
+button,
+.button {
+  transition: background-color 160ms ease, border-color 160ms ease,
+    color 160ms ease, box-shadow 160ms ease, transform 160ms ease,
+    scale 100ms ease;
+}
+
+button:not(:disabled):active,
+.button:active {
+  scale: 0.98;
+}
+
+.header nav a,
+.section-nav a,
+summary {
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.header nav a:not(.button):hover,
+.section-nav a:hover,
+summary:hover {
+  color: #997228;
+}
+
+.section-nav a {
+  border-radius: 5px;
+  padding: 4px 7px;
+}
+
+.section-nav a:hover {
+  background: #e7efe8;
+}
+
+details.details-animating {
+  overflow: hidden;
+}
+
+details[open] > form {
+  animation: psb-fade-in 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+
+  #utama,
+  details[open] > form {
+    animation: none !important;
+  }
+
+  button,
+  .button,
+  .header nav a,
+  .section-nav a,
+  summary {
+    transition: none !important;
+  }
+
+  button:not(:disabled):active,
+  .button:active,
+  button:hover,
+  .button:hover {
+    scale: 1;
+    transform: none;
+  }
+}
+
+@media print {
+  #utama,
+  details[open] > form { animation: none !important; }
+}
