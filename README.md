@@ -30,6 +30,8 @@ Buka http://127.0.0.1:5000. Berkas `.env` hanya perlu disalin sekali. Jika lingk
 
 ### Akses dari HP melalui Wi-Fi yang sama
 
+![Tampilan Website](tampilan-web-hp.png)
+
 Konfigurasi lokal kini memakai `LISTEN=auto` dan `BASE_URL=auto`. Saat menjalankan `run.py`, alamat komputer dan HP ditampilkan di terminal berdasarkan IP saat itu. Jika berpindah jaringan ketika aplikasi berjalan, hentikan dengan Ctrl+C dan jalankan kembali agar IP dideteksi ulang. Alamat komputer selalu `http://127.0.0.1:5000/login` selama server aktif. Contoh IP di bawah mengikuti jaringan saat dokumentasi sebelumnya ditulis.
 
 Konfigurasi lokal saat ini membuka `http://10.149.158.185:5000` melalui Wi-Fi komputer. Buka alamat tersebut pada browser HP, dengan komputer tetap menyala dan server berjalan.
