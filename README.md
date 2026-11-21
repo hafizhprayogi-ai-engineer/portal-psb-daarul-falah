@@ -1,3 +1,4 @@
+![Tampilan Website](tampilan-web.png)
 # Portal Penerimaan Santri Baru
 
 Salinan berkas per santri ke Google Drive privat: [aktivasi dan aturan penyimpanan](docs/integrasi-google-drive.md). Memerlukan izin OAuth Drive terpisah; sinkronisasi Sheets tetap tersedia.
